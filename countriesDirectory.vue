@@ -2,30 +2,34 @@
   <div>
     <h2> {{ title }}</h2>
 
-    <div class="countryInfo">
-      <div v-if="country === null">
-        {{ readData() }}
+    <div id="wrapper">
+      <div class="countryInfo">
+        <div v-if="country === null">
+          {{ readData() }}
+        </div>
+        <div v-else>
+          <img v-bind:src="country.flag">
+          <span>Name</span>: {{ country.name }} <br>
+          <span>Native Name</span>: {{ country.nativeName }} <br>
+          <span>Capital</span>: {{ (country.capital === '') ? 'N/A' : country.capital }} <br>
+          <span>Population</span>: {{ country.population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}  <br>
+          <span> Region</span>: {{ (country.region === '') ? 'N/A' : country.region }} <br>
+          <span> Sub-region</span>: {{ (country.subregion === '') ? 'N/A' : country.subregion }} <br>
+          <span>Currency</span>: {{ (country.currencies)[0].name }} ({{(country.currencies)[0].code}}, {{ (country.currencies)[0].symbol }})
+        </div>
       </div>
-      <div v-else>
-        <img v-bind:src="country.flag"><br>
-        <span>Name</span>: {{ country.name }} <br>
-        <span>Native Name</span>: {{ country.nativeName }} <br>
-        <span>Capital</span>: {{ country.capital }} <br>
-        <span>Population</span>: {{ country.population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}  <br>
-        <span> Region</span>: {{ country.region }} <br>
-        <span> Sub-region</span>: {{ country.subregion }} <br>
-        <span>Currency</span>: {{ (country.currencies)[0].name }} ({{(country.currencies)[0].code}}, {{ (country.currencies)[0].symbol }})
+
+      <hr style="clear: both;">
+
+      <div class="countryList">
+        <div v-for="r in region">
+          <h2 v-if="r===''">Unknown</h2>
+          <h2 v-else> {{ r }}</h2>
+          <span v-for="c in countries" v-if="c.region === r">
+            <a href="#"><button @click="findCountry(c.name)"> {{c.name}} </button></a>
+          </span>
+        </div>
       </div>
-    </div>
-
-    <hr>
-
-    <div v-for="r in region">
-      <h3 v-if="r===''">Unknown</h3>
-      <h3 v-else> {{ r }}</h3>
-      <span v-for="c in countries" v-if="c.region === r">
-        <a href="#"><button @click="findCountry(c.name)"> {{c.name}} </button></a>
-      </span>
     </div>
   </div>
 </template>
@@ -73,14 +77,44 @@ body {
 }
 
 img {
-  width: 380px;
-  height: 250px;
+  width: 450px;
+  height: 280px;
+  float: left;
+}
+
+hr {
+  clear: both;
 }
 
 div.countryInfo span {
   font-weight: bold;
+  margin: 5px 0 0 15px;
   display: inline-block;
   width: 100px;
+}
+
+div.countryInfo span:nth-child(2) {
+  margin-top: 25px;
+}
+
+
+#wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+#wrapper .countryInfo {
+}
+
+#wrapper .countryList {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+h2 {
+  margin: 10px 0 0 10px;
+  padding: 0;
 }
 
 /* https://www.csswand.dev/ */
@@ -89,10 +123,9 @@ button {
   background-color: #e4e4e4;
   border: 1px solid #969696;
   border-radius: 4px;
-  padding: 0 15px;
-  margin: 3px;
+  padding: 0 10px;
+  margin: 2px;
   cursor: pointer;
-  height: 32px;
   font-size: 14px;
   outline: none;
   transition: all 0.2s ease-in-out;
