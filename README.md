@@ -6,4 +6,4 @@ Click on a country to view the details of each country.
 
 ![sample](./assets/sample.png)
 
-[View the demo](http://jioneeu.com/projects/countries_directiory/index.html)
+[View the demo](http://jioneeu.com/projects/countries_directory/index.html)
