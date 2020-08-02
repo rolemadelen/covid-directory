@@ -3,19 +3,35 @@
     <h2> {{ title }}</h2>
 
     <div id="wrapper">
-      <div class="countryInfo">
+      <div>
         <div v-if="country === null">
-          {{ readData() }}
         </div>
-        <div v-else>
-          <img v-bind:src="country.flag">
-          <span>Name</span>: {{ country.name }} <br>
-          <span>Native Name</span>: {{ country.nativeName }} <br>
-          <span>Capital</span>: {{ (country.capital === '') ? 'N/A' : country.capital }} <br>
-          <span>Population</span>: {{ country.population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}  <br>
-          <span> Region</span>: {{ (country.region === '') ? 'N/A' : country.region }} <br>
-          <span> Sub-region</span>: {{ (country.subregion === '') ? 'N/A' : country.subregion }} <br>
-          <span>Currency</span>: {{ (country.currencies)[0].name }} ({{(country.currencies)[0].code}}, {{ (country.currencies)[0].symbol }})
+        <div class="stats" v-else>
+          <div>
+            <img v-bind:src="country.flag">
+          </div>
+          <div class="sub-stats">
+            <div class="general-stat">
+              <span>Name</span>: {{ country.name }} <br>
+              <span>Native Name</span>: {{ country.nativeName }} <br>
+              <span>Capital</span>: {{ (country.capital === '') ? 'N/A' : country.capital }} <br>
+              <span>Population</span>: {{ country.population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}  <br>
+              <span> Region</span>: {{ (country.region === '') ? 'N/A' : country.region }} <br>
+              <span> Sub-region</span>: {{ (country.subregion === '') ? 'N/A' : country.subregion }} <br>
+              <span>Currency</span>: {{ (country.currencies)[0].name }} ({{(country.currencies)[0].code}}, {{ (country.currencies)[0].symbol }})
+            </div>
+            <div class="covid-stat">
+              <span>Date</span>: {{ country.date }} <br>
+              <span>Total Cases</span>: {{ country.total_cases.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
+              <span>New Cases</span>: {{ country.new_cases.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
+              <span>Total Deaths</span>: {{ country.total_deaths.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
+              <span> New Deaths</span>: {{ country.new_deaths.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
+              <span>Total Cases per Million</span>: {{ country.total_cases_per_million }} <br>
+              <span>New Cases per Million</span>: {{ country.new_cases_per_million }} <br>
+              <span>Total Deaths per Million</span>: {{ country.total_deaths_per_million }} <br>
+              <span>New Deaths per Million</span>: {{ country.new_deaths_per_million }} <br>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -23,39 +39,57 @@
 
       <div class="countryList">
         <div v-for="r in region">
-          <h2 v-if="r===''">Unknown</h2>
-          <h2 v-else> {{ r }}</h2>
-          <span v-for="c in countries" v-if="c.region === r">
+          <h2> {{ r }}</h2>
+          <span v-for="c in countryCovidTable" v-if="c.region === r">
             <a href="#"><button @click="findCountry(c.name)"> {{c.name}} </button></a>
           </span>
         </div>
       </div>
     </div>
+    <hr>
+
+    <div class="ref">
+      COVID data from <a href="https://ourworldindata.org/covid-deaths?country=~JPN">Our World in Data</a>.
+    </div>
+
   </div>
 </template>
 
 <script>
 import json from './json/countries';
+import covid from './json/covid-data';
 
 export default {
+  created() {
+    this.createCountryCovidTable();
+    this.readData();
+  },
   data() {
     return{
-      title: "Countries Directiory",
+      title: "Countries-COVID Directiory",
       country: null,
       countries: json,
+      covid: covid,
       region: [
+      ],
+      countryCovidTable: [
       ],
     }
   }, 
   methods: {
+    createCountryCovidTable: function() {
+      this.countries.forEach(c => {
+        if(this.covid[c.alpha3Code] !== undefined) {
+          this.countryCovidTable.push(Object.assign({}, c, this.covid[c.alpha3Code].data.pop()));
+        }
+      })
+    },
     findCountry: function(name) {
-      this.country = this.countries.find(e => e.name === name)
+      this.country = this.countryCovidTable.find(e => e.name === name)
     },
     readData: function() {
-      this.countries.forEach(e => {
-        //alert(this.region.find(r => (r === e.region)) === undefined);
+      this.countryCovidTable.forEach(e => {
         if(this.region.includes(e.region)){ 
-
         } else { 
           this.region.push(e.region);
         }
@@ -77,44 +111,58 @@ body {
 }
 
 img {
-  width: 450px;
-  height: 280px;
-  float: left;
+  width: 650px;
+  height: 450px;
 }
 
 hr {
   clear: both;
 }
 
-div.countryInfo span {
+.stats {
+}
+
+.general-stat span {
+  width: 100px;
+}
+.covid-stat span {
+  width: 180px;
+}
+.general-stat span, .covid-stat span {
   font-weight: bold;
   margin: 5px 0 0 15px;
   display: inline-block;
-  width: 100px;
 }
-
-div.countryInfo span:nth-child(2) {
-  margin-top: 25px;
-}
-
 
 #wrapper {
   display: flex;
   flex-direction: column;
 }
 
-#wrapper .countryInfo {
-}
-
 #wrapper .countryList {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 h2 {
   margin: 10px 0 0 10px;
   padding: 0;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+}
+
+.sub-stats {
+  display: flex;
+  flex-direction: row;
+}
+
+.ref {
+  font-size: 13px;
+  text-align: center;
 }
 
 /* https://www.csswand.dev/ */
