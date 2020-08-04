@@ -21,15 +21,16 @@
               <span>Currency</span>: {{ (country.currencies)[0].name }} ({{(country.currencies)[0].code}}, {{ (country.currencies)[0].symbol }})
             </div>
             <div class="covid-stat">
-              <span>Date</span>: {{ country.date }} <br>
-              <span>Total Cases</span>: {{ country.total_cases.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
-              <span>New Cases</span>: {{ country.new_cases.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
-              <span>Total Deaths</span>: {{ country.total_deaths.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
-              <span> New Deaths</span>: {{ country.new_deaths.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
-              <span>Total Cases per Million</span>: {{ country.total_cases_per_million }} <br>
-              <span>New Cases per Million</span>: {{ country.new_cases_per_million }} <br>
-              <span>Total Deaths per Million</span>: {{ country.total_deaths_per_million }} <br>
-              <span>New Deaths per Million</span>: {{ country.new_deaths_per_million }} <br>
+              <span>Date</span>: 
+              <input type="date" v-model:value="today" @change="findDataByDate"><br>
+              <span>Total Cases</span>: {{ date.total_cases.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
+              <span>New Cases</span>: {{ date.new_cases.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
+              <span>Total Deaths</span>: {{ date.total_deaths.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
+              <span> New Deaths</span>: {{ date.new_deaths.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} <br>
+              <span>Total Cases per Million</span>: {{ date.total_cases_per_million }} <br>
+              <span>New Cases per Million</span>: {{ date.new_cases_per_million }} <br>
+              <span>Total Deaths per Million</span>: {{ date.total_deaths_per_million }} <br>
+              <span>New Deaths per Million</span>: {{ date.new_deaths_per_million }} <br>
             </div>
           </div>
         </div>
@@ -70,6 +71,8 @@ export default {
       country: null,
       countries: json,
       covid: covid,
+      date: '',
+      today: '',
       region: [
       ],
       countryCovidTable: [
@@ -77,15 +80,20 @@ export default {
     }
   }, 
   methods: {
+    findDataByDate: function() {
+      this.date = this.country.date.find(e => e.date === this.today)
+    },
     createCountryCovidTable: function() {
       this.countries.forEach(c => {
         if(this.covid[c.alpha3Code] !== undefined) {
-          this.countryCovidTable.push(Object.assign({}, c, this.covid[c.alpha3Code].data.pop()));
+          this.countryCovidTable.push(Object.assign({}, c, {date: this.covid[c.alpha3Code].data}));
         }
       })
     },
     findCountry: function(name) {
-      this.country = this.countryCovidTable.find(e => e.name === name)
+      this.country = this.countryCovidTable.find(e => e.name === name);
+      this.date = this.country.date[this.country.date.length-1];
+      this.today = this.date.date;
     },
     readData: function() {
       this.countryCovidTable.forEach(e => {
