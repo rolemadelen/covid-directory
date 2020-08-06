@@ -86,7 +86,7 @@
     <hr>
 
     <div class="ref">
-      COVID data from <a href="https://ourworldindata.org/covid-deaths?country=~JPN">Our World in Data</a>.
+      COVID data from <a href="https://ourworldindata.org/covid-deaths?country=~JPN">Our World in Data</a>:<a href="https://covid.ourworldindata.org/data/owid-covid-data.json">JSON</a>
     </div>
 
   </div>
@@ -124,27 +124,37 @@ export default {
       cases: [],
       casesPm: [],
       deathsPm: [],
+      sortedBy: '',
     }
   }, 
   methods: {
     sortCountries: function(sortBy) {
       if (sortBy === 'deaths') {
-        this.sortedCountry = this.deaths.sort((a, b) => {
-          return b.val - a.val;
-        });
+        if (this.sortedBy !== sortBy) {
+          this.sortedCountry = this.deaths.sort((a, b) => {
+            return b.val - a.val;
+          });
+        }
       } else if (sortBy === 'cases') {
-        this.sortedCountry = this.cases.sort((a, b) => {
-          return b.val - a.val;
-        });
+        if (this.sortedBy !== sortBy) {
+          this.sortedCountry = this.cases.sort((a, b) => {
+            return b.val - a.val;
+          });
+        }
       } else if (sortBy === 'casesPm') {
-        this.sortedCountry = this.casesPm.sort((a, b) => {
-          return b.val - a.val;
-        });
+        if (this.sortedBy !== sortBy) {
+          this.sortedCountry = this.casesPm.sort((a, b) => {
+            return b.val - a.val;
+          });
+        }
       } else if (sortBy === 'deathsPm') {
-        this.sortedCountry = this.deathsPm.sort((a, b) => {
-          return b.val - a.val;
-        });
+        if (this.sortedBy !== sortBy) {
+          this.sortedCountry = this.deathsPm.sort((a, b) => {
+            return b.val - a.val;
+          });
+        }
       }
+      this.sortedBy = sortBy
     },
     findDataByDate: function() {
       this.date = this.country.date.find(e => e.date === this.today)
@@ -222,7 +232,7 @@ body {
 
 img {
   width: 500px;
-  height: 380px;
+  height: 350px;
 }
 
 hr {
