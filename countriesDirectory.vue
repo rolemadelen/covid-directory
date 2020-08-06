@@ -74,6 +74,9 @@
           </label>
           <input type="radio" name="sort-type" value="totalDeathsPm" @click="sortCountries('deathsPm')"> <br>
         </div>
+        <div>
+          Top: <input type="text" v-model="nCountries" @change="sortedBy.ascend=false;sortCountries(sortedBy.type)"> countries
+        </div>
         <div class="sorted-countries">
           <ol>
             <li v-for="c in sortedCountry">
@@ -117,6 +120,8 @@ export default {
       country: null,
       date: '',
       today: '',
+      sortedBy: '',
+      nCountries: 30,
 
       // Sort table
       sortedCountry: null,
@@ -124,37 +129,38 @@ export default {
       cases: [],
       casesPm: [],
       deathsPm: [],
-      sortedBy: '',
     }
   }, 
   methods: {
     sortCountries: function(sortBy) {
-      if (sortBy === 'deaths') {
-        if (this.sortedBy !== sortBy) {
-          this.sortedCountry = this.deaths.sort((a, b) => {
-            return b.val - a.val;
-          });
-        }
-      } else if (sortBy === 'cases') {
-        if (this.sortedBy !== sortBy) {
-          this.sortedCountry = this.cases.sort((a, b) => {
-            return b.val - a.val;
-          });
-        }
-      } else if (sortBy === 'casesPm') {
-        if (this.sortedBy !== sortBy) {
-          this.sortedCountry = this.casesPm.sort((a, b) => {
-            return b.val - a.val;
-          });
-        }
-      } else if (sortBy === 'deathsPm') {
-        if (this.sortedBy !== sortBy) {
-          this.sortedCountry = this.deathsPm.sort((a, b) => {
-            return b.val - a.val;
-          });
-        }
+      let table = null;
+      switch(sortBy) {
+        case 'deaths':
+          table = this.deaths;
+          break;
+        case 'cases':
+          table = this.cases;
+          break;
+        case 'casesPm':
+          table = this.casesPm;
+          break;
+        case 'deathsPm':
+          table = this.deathsPm;
+          break;
       }
-      this.sortedBy = sortBy
+
+      if (this.sortedBy.type === sortBy) {
+        if (this.sortedBy.ascend === true) {
+          this.sortedCountry = table.slice(0).reverse().slice(0, this.nCountries)
+        } else {
+          this.sortedCountry = table.slice(0, this.nCountries)
+        }
+        this.sortedBy.ascend = !this.sortedBy.ascend
+      }
+      else {
+        this.sortedCountry = table.slice(0, this.nCountries)
+        this.sortedBy = {type: sortBy, ascend: true}
+      }
     },
     findDataByDate: function() {
       this.date = this.country.date.find(e => e.date === this.today)
@@ -175,6 +181,9 @@ export default {
           if(this.deaths[this.deaths.length-1].val === undefined) {
             this.deaths.pop()
           }
+          this.deaths = this.deaths.sort((a, b) => {
+            return b.val - a.val;
+          });
 
           this.cases.push({
             'country': t.name,
@@ -183,6 +192,9 @@ export default {
           if(this.cases[this.cases.length-1].val === undefined) {
             this.cases.pop();
           }
+          this.cases = this.cases.sort((a, b) => {
+            return b.val - a.val;
+          });
 
           this.casesPm.push({
             'country': t.name,
@@ -191,6 +203,9 @@ export default {
           if(this.casesPm[this.cases.length-1].val === undefined) {
             this.casesPm.pop();
           }
+          this.casesPm = this.casesPm.sort((a, b) => {
+            return b.val - a.val;
+          });
 
           this.deathsPm.push({
             'country': t.name,
@@ -199,6 +214,9 @@ export default {
           if(this.deathsPm[this.cases.length-1].val === undefined) {
             this.deathsPm.pop();
           }
+          this.deathsPm = this.deathsPm.sort((a, b) => {
+            return b.val - a.val;
+          });
         }
       })
     },
@@ -286,7 +304,6 @@ h2 {
 #view { 
   display: flex;
   flex-direction: row;
-  border: 1px solid pink;
 }
 
 .left {
